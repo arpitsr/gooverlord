@@ -1,0 +1,57 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: pod-reader
+rules:
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["get", "list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: pod-reader-binding
+subjects:
+  - kind: ServiceAccount
+    name: overlord-service-account
+roleRef:
+  kind: Role
+  name: pod-reader
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: overlord-deployment
+  labels:
+    app: overlord
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: overlord
+  template:
+    metadata:
+      labels:
+        app: overlord
+    spec:
+      serviceAccountName: overlord-service-account
+      containers:
+        - name: overlord
+          image: overlord_img:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 3000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: overlord-service
+spec:
+  selector:
+    app: overlord
+  type: NodePort
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 3000

@@ -1,0 +1,19 @@
+[sources.generate_syslog]
+type = "demo_logs"
+format = "syslog"
+count = 100
+
+[transforms.remap_syslog]
+inputs = [ "generate_syslog"]
+type = "remap"
+source = '''
+  structured = parse_syslog!(.message)
+  . = merge(., structured)
+'''
+
+[sinks.emit_http]
+type = "http"
+inputs = [ "remap_syslog" ]
+uri = "http://192.168.49.2:30147/logs"
+encoding.codec = "json"
+method = "post"
