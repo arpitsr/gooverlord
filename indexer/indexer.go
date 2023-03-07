@@ -14,7 +14,7 @@ import (
 )
 
 type IndexerBackend interface {
-	CreateIndex(indexName string) error
+	GetMeilisearchClient(node string) *meilisearch.Client
 	IndexEntry(le models.LogEntry) error
 }
 
@@ -25,7 +25,7 @@ type meilisearchBackend struct {
 	connsMap map[string]*meilisearch.Client
 }
 
-func getMeilisearchClient(node string) *meilisearch.Client {
+func GetMeilisearchClient(node string) *meilisearch.Client {
 	once.Do(func() {
 		searchBackend = &meilisearchBackend{connsMap: make(map[string]*meilisearch.Client, 0)}
 		nodes := partitioner.GetConsistentHashRing().RealNodesSet
@@ -59,7 +59,7 @@ func IndexEntries(entries []models.LogEntry) {
 
 	// for each node index the entries by fetching client for that meilisearch node
 	for node, logEntries := range nodeToLogEntriesMap {
-		client := getMeilisearchClient(node)
+		client := GetMeilisearchClient(node)
 		indexToEntryMap := make(map[string][]models.LogEntry, 0)
 		for _, val := range logEntries {
 			t, err := time.Parse(time.RFC3339, val.Timestamp)
