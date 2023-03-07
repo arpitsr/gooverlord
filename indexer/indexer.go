@@ -13,6 +13,7 @@ import (
 	"github.com/meilisearch/meilisearch-go"
 )
 
+// we can extend multiple backend implementation based on req or POC results
 type IndexerBackend interface {
 	GetMeilisearchClient(node string) *meilisearch.Client
 	IndexEntry(le models.LogEntry) error

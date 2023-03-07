@@ -10,6 +10,9 @@ import (
 	"github.com/meilisearch/meilisearch-go"
 )
 
+// Different planner strategy needs to be defined based on query type
+// dumb all scan strategy is used here
+// planning and query optimization can be done based on metastore for indexed data
 func Search(query models.Query) []*meilisearch.SearchResponse {
 	chr := partitioner.GetConsistentHashRing()
 	nodes := chr.RealNodesSet
