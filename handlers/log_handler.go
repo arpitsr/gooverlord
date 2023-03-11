@@ -12,7 +12,7 @@ func Logs(c *fiber.Ctx) error {
 		return err
 	}
 
-	indexer.IndexEntries(entries)
+	indexer.GetInstance().IndexEntries(entries)
 
 	return c.JSON(fiber.Map{})
 }

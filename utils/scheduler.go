@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	"com.ak.gooverlord/indexer"
 	"com.ak.gooverlord/partitioner"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
@@ -43,21 +44,27 @@ func getNodesFromK8sDeployment() []string {
 }
 
 func init() {
+	schRun()
 	go func() {
 		ticker := time.NewTicker(1 * time.Minute)
 		for _ = range ticker.C {
-			ips := getNodesFromK8sDeployment()
-			go func(ips []string) {
-				newCHR := partitioner.NewConsistenHashRing()
-				for _, ip := range ips {
-					ip = fmt.Sprintf("http://%s:7700", ip)
-					newCHR.AddNode(ip)
-				}
-				partitioner.CHR.RWLock.Lock()
-				defer partitioner.CHR.RWLock.Unlock()
-				partitioner.CHR = newCHR
-				fmt.Println(partitioner.CHR.RealNodesSet)
-			}(ips)
+			schRun()
 		}
 	}()
+}
+
+func schRun() {
+	ips := getNodesFromK8sDeployment()
+	go func(ips []string) {
+		newCHR := partitioner.NewConsistenHashRing()
+		for _, ip := range ips {
+			ip = fmt.Sprintf("http://%s:7700", ip)
+			newCHR.AddNode(ip)
+		}
+		partitioner.GetConsistentHashRing().RWLock.Lock()
+		defer partitioner.GetConsistentHashRing().RWLock.Unlock()
+		partitioner.CHR = newCHR
+		fmt.Println(partitioner.CHR.RealNodesSet)
+		indexer.UpdateInstance()
+	}(ips)
 }

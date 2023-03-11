@@ -10,16 +10,22 @@ import (
 	"github.com/meilisearch/meilisearch-go"
 )
 
+type Planner interface {
+	FullTextSearch(query models.Query) interface{}
+	AppLogSearch(query models.Query) interface{}
+}
+
 // Different planner strategy needs to be defined based on query type
 // dumb all scan strategy is used here
 // planning and query optimization can be done based on metastore for indexed data
-func Search(query models.Query) []*meilisearch.SearchResponse {
+// this needs to be updated to generic response
+func FullTextSearch(query models.Query) []*meilisearch.SearchResponse {
 	chr := partitioner.GetConsistentHashRing()
 	nodes := chr.RealNodesSet
-	fmt.Printf("Query Model: %v\n", query)
+	fmt.Printf("%+v\n", query)
 	var results []*meilisearch.SearchResponse
 	for node := range nodes {
-		result, err := indexer.GetMeilisearchClient(node).Index(query.Index).Search(query.SearchQuery, &meilisearch.SearchRequest{})
+		result, err := indexer.GetInstance().GetClient(node).Index(query.Index).Search(query.SearchQuery, &query.SearchRequest)
 		if err != nil {
 			log.Println(err.Error())
 			continue

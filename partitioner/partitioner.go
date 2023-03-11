@@ -3,7 +3,6 @@ package partitioner
 import (
 	"errors"
 	"hash/fnv"
-	"log"
 	"sort"
 	"strconv"
 	"sync"
@@ -65,7 +64,6 @@ func (c *ConsistentHashRing) RemoveNode(nodeID string) {
 }
 
 func (c *ConsistentHashRing) GetNode(key string) (string, error) {
-	log.Printf("ConsistentHashRing %v\n", c.RealNodesSet)
 	c.RWLock.RLock()
 	defer c.RWLock.RUnlock()
 	hash := c.GetHash(key)
