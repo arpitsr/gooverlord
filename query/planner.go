@@ -12,7 +12,6 @@ import (
 
 type Planner interface {
 	FullTextSearch(query models.Query) interface{}
-	AppLogSearch(query models.Query) interface{}
 }
 
 // Different planner strategy needs to be defined based on query type

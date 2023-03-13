@@ -29,7 +29,6 @@ func schRun() {
 		partitioner.GetConsistentHashRing().RWLock.Lock()
 		defer partitioner.GetConsistentHashRing().RWLock.Unlock()
 		partitioner.CHR = newCHR
-		fmt.Println(partitioner.CHR.RealNodesSet)
 		indexer.UpdateInstance()
 	}(ips)
 }

@@ -14,6 +14,6 @@ source = '''
 [sinks.emit_http]
 type = "http"
 inputs = [ "remap_syslog" ]
-uri = "http://192.168.49.2:31387/logs"
+uri =  "http://192.168.49.2:31176/logs"
 encoding.codec = "json"
 method = "post"

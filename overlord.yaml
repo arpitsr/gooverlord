@@ -26,7 +26,7 @@ metadata:
   labels:
     app: overlord
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: overlord
@@ -38,7 +38,7 @@ spec:
       serviceAccountName: overlord-service-account
       containers:
         - name: overlord
-          image: overlord_img:v1.1
+          image: overlord_img:v1.0
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 3000

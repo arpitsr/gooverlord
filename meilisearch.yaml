@@ -60,7 +60,7 @@ metadata:
     app.kubernetes.io/component: search-engine
     app.kubernetes.io/part-of: meilisearch
 spec:
-  replicas: 2
+  replicas: 1
   serviceName: meilisearch
   selector:
     matchLabels:
