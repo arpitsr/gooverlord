@@ -1,0 +1,9 @@
+{
+    "service": {
+        "name": "indexer-service",
+        "tags": [
+            "indexer"
+        ],
+        "port": 7700
+    }
+}

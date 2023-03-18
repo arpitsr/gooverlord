@@ -15,6 +15,7 @@ ENV CONSUL_BIND_INTERFACE=eth0
 # Set MeiliSearch configuration
 ENV MEILI_HTTP_ADDR=0.0.0.0:7700
 ENV MEILI_MASTER_KEY=masterKey
+COPY service.json /consul/config/
 
 # Start Consul client and MeiliSearch services
 CMD ["sh", "-c", "/bin/consul agent -client=0.0.0.0 -retry-join=consul-server --data-dir /consul/data & meilisearch"]
