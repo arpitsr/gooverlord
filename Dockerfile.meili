@@ -1,0 +1,20 @@
+
+FROM hashicorp/consul:latest as builder
+
+FROM getmeili/meilisearch:latest
+
+
+COPY --from=builder /bin/consul /bin/
+# Expose ports
+EXPOSE 8500
+EXPOSE 7700-7800
+
+# Set Consul configuration
+ENV CONSUL_BIND_INTERFACE=eth0
+
+# Set MeiliSearch configuration
+ENV MEILI_HTTP_ADDR=0.0.0.0:7700
+ENV MEILI_MASTER_KEY=masterKey
+
+# Start Consul client and MeiliSearch services
+CMD ["sh", "-c", "/bin/consul agent -client=0.0.0.0 -retry-join=consul-server --data-dir /consul/data & meilisearch"]
