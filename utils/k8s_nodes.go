@@ -40,8 +40,7 @@ func (kn *K8SDiscovery) GetIndexNodes() []string {
 
 	var ips = make([]string, 0)
 	for _, pod := range pods.Items {
-		fmt.Println(pod.Status.PodIP)
-		ips = append(ips, pod.Status.PodIP)
+		ips = append(ips, fmt.Sprintf("http://%s:7700", pod.Status.PodIP))
 	}
 	return ips
 }

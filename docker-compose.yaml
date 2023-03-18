@@ -21,6 +21,8 @@ services:
     command: "sh -c '/bin/consul agent -client=0.0.0.0 -node=client-0 -config-dir=/consul/config -retry-join=consul-server --data-dir /consul/data & meilisearch'"
     networks:
       - consul
+    depends_on:
+      - consul-server
     # volumes:
     #   - ./consul-data-client:/consul/data
 
@@ -31,8 +33,28 @@ services:
     command: "sh -c '/bin/consul agent -client=0.0.0.0 -node=client-1 -config-dir=/consul/config -retry-join=consul-server --data-dir /consul/data & meilisearch'"
     networks:
       - consul
+    depends_on:
+      - consul-server
     # volumes:
     #   - ./consul-data-client:/consul/data
+
+  overlord-0:
+    image: overlord_img:latest
+    container_name: overlord-0
+    restart: always
+    networks:
+      - consul
+    depends_on:
+      - consul-server
+
+  overlord-1:
+    image: overlord_img:latest
+    container_name: overlord-1
+    restart: always
+    networks:
+      - consul
+    depends_on:
+      - consul-server
 
 networks:
   consul:
