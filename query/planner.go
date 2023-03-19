@@ -17,17 +17,31 @@ type Planner interface {
 // dumb all scan strategy is used here
 // planning and query optimization can be done based on metastore for indexed data
 // this needs to be updated to generic response
-func FullTextSearch(query models.Query) []*meilisearch.SearchResponse {
+func FullTextSearch(query models.Query) *meilisearch.SearchResponse {
 	chr := partitioner.GetConsistentHashRing()
 	nodes := chr.RealNodesSet
-	var results []*meilisearch.SearchResponse
+	// Merge the "hits" arrays
+	var mergedRes = &meilisearch.SearchResponse{Hits: make([]interface{}, 0)}
 	for node := range nodes {
 		result, err := indexer.GetInstance().GetClient(node).Index(query.Index).Search(query.SearchQuery, &query.SearchRequest)
 		if err != nil {
 			log.Println(err.Error())
 			continue
 		}
-		results = append(results, result)
+		mergedRes.Hits = append(mergedRes.Hits, result.Hits...)
+		// Sum up the "estimatedTotalHits" and "processingTimeMs" values
+		mergedRes.EstimatedTotalHits += result.EstimatedTotalHits
+		// Finding max time on all nodes
+		mergedRes.ProcessingTimeMs = max(mergedRes.ProcessingTimeMs, result.ProcessingTimeMs)
+		mergedRes.Query = result.Query
+		mergedRes.Limit = result.Limit
 	}
-	return results
+	return mergedRes
+}
+
+func max(x, y int64) int64 {
+	if x < y {
+		return y
+	}
+	return x
 }
