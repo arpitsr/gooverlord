@@ -1,5 +1,6 @@
 package metastore
 
 type Backend interface {
-	IsIndexReady(index string) error
+	Set(key string, value bool) (any, bool)
+	Get(key string) (any, bool)
 }
