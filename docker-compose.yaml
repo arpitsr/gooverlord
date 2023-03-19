@@ -1,0 +1,61 @@
+version: '3.7'
+
+services:
+  consul-server:
+    image: consul:latest
+    container_name: consul
+    ports:
+      - "8500:8500"
+      - "8600:8600/tcp"
+      - "8600:8600/udp"
+    command: consul agent -server -ui -node=server-1 -config-dir=/consul/config -bootstrap-expect=1 -client=0.0.0.0 --data-dir /consul/data
+    networks:
+      - consul
+
+  meili-0:
+    image: meili-img:latest
+    container_name: meili-0
+    restart: always
+    command: "sh -c '/bin/consul agent -client=0.0.0.0 -node=client-0 -config-dir=/consul/config -retry-join=consul-server --data-dir /consul/data & meilisearch'"
+    networks:
+      - consul
+    depends_on:
+      - consul-server
+    ports:
+      - 7701:7700
+
+  meili-1:
+    image: meili-img:latest
+    container_name: meili-1
+    restart: always
+    command: "sh -c '/bin/consul agent -client=0.0.0.0 -node=client-1 -config-dir=/consul/config -retry-join=consul-server --data-dir /consul/data & meilisearch'"
+    networks:
+      - consul
+    depends_on:
+      - consul-server
+    ports:
+      - 7700:7700
+
+  overlord-0:
+    image: overlord_img:latest
+    container_name: overlord-0
+    restart: always
+    networks:
+      - consul
+    depends_on:
+      - consul-server
+    ports:
+      - 3000:3000
+
+  # overlord-1:
+  #   image: overlord_img:latest
+  #   container_name: overlord-1
+  #   restart: always
+  #   networks:
+  #     - consul
+  #   depends_on:
+  #     - consul-server
+
+networks:
+  consul:
+    driver: bridge

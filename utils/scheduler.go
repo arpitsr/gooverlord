@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"fmt"
 	"time"
 
 	"com.ak.gooverlord/indexer"
@@ -11,7 +10,7 @@ import (
 func init() {
 	schRun()
 	go func() {
-		ticker := time.NewTicker(1 * time.Minute)
+		ticker := time.NewTicker(10 * time.Second)
 		for _ = range ticker.C {
 			schRun()
 		}
@@ -19,11 +18,11 @@ func init() {
 }
 
 func schRun() {
-	ips := k8sDiscovery.GetIndexNodes()
+	// ips := k8sDiscovery.GetIndexNodes()
+	ips := consulServiceDiscovery.GetIndexNodes()
 	go func(ips []string) {
 		newCHR := partitioner.NewConsistenHashRing()
 		for _, ip := range ips {
-			ip = fmt.Sprintf("http://%s:7700", ip)
 			newCHR.AddNode(ip)
 		}
 		partitioner.GetConsistentHashRing().RWLock.Lock()

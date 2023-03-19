@@ -1,0 +1,12 @@
+curl \
+  -X POST 'http://localhost:7700/indexes/17-59/documents' \
+  -H 'Content-Type: application/json' \
+  --data-binary '[
+    {
+    "appname": "testapp",
+    "hostname": "localhost",
+    "message": "Testing message",
+    "id": "1",
+    "timestamp": "1494505756"
+    }
+  ]'
