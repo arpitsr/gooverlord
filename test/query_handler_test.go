@@ -5,28 +5,32 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
+	"reflect"
 	"testing"
 	"time"
 
+	"com.ak.gooverlord/config"
 	"com.ak.gooverlord/models"
+	"github.com/meilisearch/meilisearch-go"
 )
 
+const SERVER_URL = "http://localhost:3000"
+
+var ts = time.Unix(1494505756, 0)
+
 func TestMain(m *testing.M) {
-	ts := time.Now().Local().Format(time.RFC3339)
-	log.Printf("%s", ts)
-	url := "http://192.168.49.2:30726/logs"
+	url := fmt.Sprintf("%s/logs", SERVER_URL)
 	logEntry := models.LogEntry{
 		Appname:   "testapp",
 		Hostname:  "localhost",
 		Message:   "Testing message",
 		ID:        "1",
-		Timestamp: ts,
+		Timestamp: ts.Format(time.RFC3339),
 	}
-	b, err := json.Marshal(logEntry)
+	b, err := json.Marshal([]models.LogEntry{logEntry})
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -44,8 +48,7 @@ func TestMain(m *testing.M) {
 		return
 	}
 	defer resp.Body.Close()
-
-	body, error := ioutil.ReadAll(resp.Body)
+	body, error := io.ReadAll(resp.Body)
 	if error != nil {
 		fmt.Println(error)
 	}
@@ -55,8 +58,9 @@ func TestMain(m *testing.M) {
 }
 
 func TestQueryHandler(t *testing.T) {
-	url := "http://192.168.49.2:30726/query"
-	reqString := `{"q":"up.de","index":"17-10"}`
+	url := fmt.Sprintf("%s/query", SERVER_URL)
+	hourMinute := ts.Format(config.DATE_INDEX_FORMAT)
+	reqString := fmt.Sprintf(`{"q":"Testing","index":"%s"}`, hourMinute)
 	requestBody := []byte(reqString)
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(requestBody))
 	if err != nil {
@@ -73,19 +77,22 @@ func TestQueryHandler(t *testing.T) {
 	}
 	defer resp.Body.Close()
 
-	// app := fiber.New()
-	// app.Post("/query", handlers.Query)
-	// resp, _ := app.Test(req)
-	// if status := resp.StatusCode; status != http.StatusOK {
-	// 	t.Errorf("handler returned wrong status code: got %v, want %v", status, http.StatusOK)
-	// }
-	expected := `[{"hits":[{"appname":"meln1ks","hostname":"up.de","message":"Pretty pretty pretty good","msgid":"ID141","timestamp":"2023-03-11T17:10:44.223Z"}],"estimatedTotalHits":1,"limit":20,"processingTimeMs":0,"query":"up.de"},{"hits":[],"limit":20,"processingTimeMs":0,"query":"up.de"}]`
-	bodyBytes, err := io.ReadAll(resp.Body)
+	var res []*meilisearch.SearchResponse
+	err = json.NewDecoder(resp.Body).Decode(&res)
 	if err != nil {
-		log.Fatal(err)
+		t.Fatalf("Could not decode response, %e", err)
 	}
-	bodyString := string(bodyBytes)
-	if bodyString != expected {
-		log.Fatalf("Received: %s vs Expected: %s", bodyString, expected)
+
+	var exp []*meilisearch.SearchResponse
+	expected := `[{"hits":[{"appname":"testapp","hostname":"localhost","id":"1","message":"Testing message","timestamp":"2017-05-11T17:59:16+05:30"}],"estimatedTotalHits":1,"limit":20,"processingTimeMs":0,"query":"Testing"}]`
+
+	err = json.Unmarshal([]byte(expected), &exp)
+	if err != nil {
+		t.Fatalf("Could not decode exp, %e", err)
+	}
+	if reflect.DeepEqual(exp, res) {
+		log.Printf("Success")
+	} else {
+		t.Fatalf("Exp: %+v, Returned: %+v", exp, res)
 	}
 }

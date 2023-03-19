@@ -1,7 +1,6 @@
 package query
 
 import (
-	"fmt"
 	"log"
 
 	"com.ak.gooverlord/indexer"
@@ -21,7 +20,6 @@ type Planner interface {
 func FullTextSearch(query models.Query) []*meilisearch.SearchResponse {
 	chr := partitioner.GetConsistentHashRing()
 	nodes := chr.RealNodesSet
-	fmt.Printf("%+v\n", query)
 	var results []*meilisearch.SearchResponse
 	for node := range nodes {
 		result, err := indexer.GetInstance().GetClient(node).Index(query.Index).Search(query.SearchQuery, &query.SearchRequest)

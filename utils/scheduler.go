@@ -10,7 +10,7 @@ import (
 func init() {
 	schRun()
 	go func() {
-		ticker := time.NewTicker(1 * time.Minute)
+		ticker := time.NewTicker(10 * time.Second)
 		for _ = range ticker.C {
 			schRun()
 		}

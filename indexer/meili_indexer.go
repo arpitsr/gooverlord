@@ -70,6 +70,8 @@ func (mb *meilisearchBackend) IndexEntries(entries []models.LogEntry) {
 		nodeToLogEntriesMap[node] = append(nodeToLogEntriesMap[node], entry)
 	}
 
+	fmt.Printf("NodeToLogEntryMap\n%+v\n", nodeToLogEntriesMap)
+
 	// for each node index the entries by fetching client for that meilisearch node
 	for node, logEntries := range nodeToLogEntriesMap {
 		client := mb.GetClient(node)
@@ -91,7 +93,7 @@ func (mb *meilisearchBackend) IndexEntries(entries []models.LogEntry) {
 			index := client.Index(key)
 			_, err := index.AddDocuments(val)
 			if err != nil {
-				fmt.Println(err)
+				fmt.Printf("--- Error in indexing ---\n%e\n", err)
 				continue
 			}
 		}

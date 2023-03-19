@@ -11,8 +11,6 @@ services:
     command: consul agent -server -ui -node=server-1 -config-dir=/consul/config -bootstrap-expect=1 -client=0.0.0.0 --data-dir /consul/data
     networks:
       - consul
-    # volumes:
-    #   - ./consul-data-server:/consul/data
 
   meili-0:
     image: meili-img:latest
@@ -23,8 +21,8 @@ services:
       - consul
     depends_on:
       - consul-server
-    # volumes:
-    #   - ./consul-data-client:/consul/data
+    ports:
+      - 7701:7700
 
   meili-1:
     image: meili-img:latest
@@ -35,8 +33,8 @@ services:
       - consul
     depends_on:
       - consul-server
-    # volumes:
-    #   - ./consul-data-client:/consul/data
+    ports:
+      - 7700:7700
 
   overlord-0:
     image: overlord_img:latest
@@ -46,15 +44,17 @@ services:
       - consul
     depends_on:
       - consul-server
+    ports:
+      - 3000:3000
 
-  overlord-1:
-    image: overlord_img:latest
-    container_name: overlord-1
-    restart: always
-    networks:
-      - consul
-    depends_on:
-      - consul-server
+  # overlord-1:
+  #   image: overlord_img:latest
+  #   container_name: overlord-1
+  #   restart: always
+  #   networks:
+  #     - consul
+  #   depends_on:
+  #     - consul-server
 
 networks:
   consul:
