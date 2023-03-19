@@ -77,14 +77,14 @@ func TestQueryHandler(t *testing.T) {
 	}
 	defer resp.Body.Close()
 
-	var res []*meilisearch.SearchResponse
+	var res *meilisearch.SearchResponse
 	err = json.NewDecoder(resp.Body).Decode(&res)
+
 	if err != nil {
 		t.Fatalf("Could not decode response, %e", err)
 	}
-
-	var exp []*meilisearch.SearchResponse
-	expected := `[{"hits":[{"appname":"testapp","hostname":"localhost","id":"1","message":"Testing message","timestamp":"2017-05-11T17:59:16+05:30"}],"estimatedTotalHits":1,"limit":20,"processingTimeMs":0,"query":"Testing"}]`
+	var exp *meilisearch.SearchResponse
+	expected := `{"hits":[{"appname":"testapp","hostname":"localhost","id":"1","message":"Testing message","timestamp":"2017-05-11T17:59:16+05:30"}],"estimatedTotalHits":1,"limit":20,"processingTimeMs":0,"query":"Testing"}`
 
 	err = json.Unmarshal([]byte(expected), &exp)
 	if err != nil {

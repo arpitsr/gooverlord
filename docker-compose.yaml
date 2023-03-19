@@ -45,16 +45,18 @@ services:
     depends_on:
       - consul-server
     ports:
-      - 3000:3000
+      - 3001:3000
 
-  # overlord-1:
-  #   image: overlord_img:latest
-  #   container_name: overlord-1
-  #   restart: always
-  #   networks:
-  #     - consul
-  #   depends_on:
-  #     - consul-server
+  overlord-1:
+    image: overlord_img:latest
+    container_name: overlord-1
+    restart: always
+    networks:
+      - consul
+    depends_on:
+      - consul-server
+    ports:
+      - 3002:3000
 
 networks:
   consul:
