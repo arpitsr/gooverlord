@@ -1,4 +1,4 @@
 curl \
   -X POST 'http://localhost:3000/query' \
   -H 'Content-Type: application/json' \
-  --data-binary '{ "q": "up.de", "index": "12-53" }'
+  --data-binary '{ "q": "up.de", "index": "13-05" }'
