@@ -1,7 +1,7 @@
 [sources.generate_syslog]
 type = "demo_logs"
+interval = 0.0001
 format = "syslog"
-count = 100
 
 [transforms.parse_syslog_tfs]
 type = "remap"
@@ -24,6 +24,7 @@ inputs = [ "rename_key" ]
 uri =  "http://localhost:3000/logs"
 encoding = { codec = "json" }
 method = "post"
+batch = { max_bytes = 2048, max_events = 10, timeout_secs = 0.01 }
 
 # [sinks.sysout_sink]
 # type = "console"

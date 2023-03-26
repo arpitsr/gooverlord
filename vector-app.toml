@@ -1,0 +1,9 @@
+[sources.generate_json]
+type = "demo_logs"
+format = "json"
+interval = 0.001
+
+[sinks.sysout_sink]
+type = "console"
+inputs = ["generate_json"]
+encoding = { codec = "json" }
